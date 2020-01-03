@@ -1,5 +1,5 @@
-use crate::audio::Music;
-use crate::pong::Pong;
+use crate::resources::Music;
+use crate::states::Pong;
 use amethyst::{
     audio::{AudioBundle, DjSystem},
     core::transform::TransformBundle,
@@ -14,8 +14,9 @@ use amethyst::{
     utils::application_root_dir,
 };
 
-mod audio;
-mod pong;
+mod components;
+mod resources;
+mod states;
 mod systems;
 
 fn main() -> amethyst::Result<()> {

@@ -10,8 +10,8 @@ use amethyst::{
     ecs::prelude::{Join, Read, ReadExpect, ReadStorage, System, SystemData, World, WriteStorage},
 };
 
-use crate::audio::{play_bounce_sound, Sounds};
-use crate::pong::{Ball, Paddle, Side, ARENA_HEIGHT};
+use crate::components::{Ball, Paddle, Side, ARENA_HEIGHT};
+use crate::resources::{play_bounce_sound, Sounds};
 
 #[derive(SystemDesc)]
 pub struct MoveBallsSystem;

@@ -9,8 +9,8 @@ use amethyst::{
     ui::UiText,
 };
 
-use crate::audio::{play_score_sound, Sounds};
-use crate::pong::{Ball, ScoreBoard, ScoreText, ARENA_HEIGHT, ARENA_WIDTH};
+use crate::components::{Ball, ScoreBoard, ScoreText, ARENA_HEIGHT, ARENA_WIDTH};
+use crate::resources::{play_score_sound, Sounds};
 use std::ops::Deref;
 
 #[derive(SystemDesc)]

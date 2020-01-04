@@ -9,7 +9,7 @@ use amethyst::{
 
 #[derive(Default)]
 pub struct Pong {
-    ball_spawn_timer: Option<f32>,
+    pub ball_spawn_timer: Option<f32>,
     sprite_sheet_handle: Option<Handle<SpriteSheet>>,
 }
 

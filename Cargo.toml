@@ -8,3 +8,4 @@ edition = "2018"
 amethyst = { version = "0.13", features = [ "metal" ] }
 # Workaround for an objc break with metal
 objc = "=0.2.6"
+rand = { version = "0.7", features = [ "small_rng" ] }

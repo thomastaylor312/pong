@@ -8,13 +8,27 @@ use amethyst::{
     ecs::Read,
     ui::UiText,
 };
-
 use crate::components::{Ball, ScoreBoard, ScoreText, ARENA_HEIGHT, ARENA_WIDTH};
 use crate::resources::{play_score_sound, Sounds};
 use std::ops::Deref;
+use rand::distributions::{Bernoulli, Distribution};
+use rand::SeedableRng;
+use rand::rngs::SmallRng;
 
 #[derive(SystemDesc)]
-pub struct ScoringSystem;
+pub struct ScoringSystem {
+    sampler: Bernoulli,
+    rand_gen: SmallRng,
+}
+
+impl Default for ScoringSystem {
+    fn default() -> Self {
+        ScoringSystem {
+            sampler: Bernoulli::new(0.5).unwrap(),
+            rand_gen: SmallRng::from_entropy(),
+        }
+    }
+}
 
 impl<'s> System<'s> for ScoringSystem {
     type SystemData = (
@@ -38,7 +52,7 @@ impl<'s> System<'s> for ScoringSystem {
         score_text,
         storage,
         sounds,
-        audio_output,
+        audio_output
     ): Self::SystemData,
     ) {
         for (ball, transform) in (&mut balls, &mut locals).join() {
@@ -66,8 +80,12 @@ impl<'s> System<'s> for ScoringSystem {
                 // TODO: Add random negative to Y velocity
                 // Reverse direction and play the sound
                 ball.velocity[0] = -ball.velocity[0];
-                transform.set_translation_xyz(ARENA_WIDTH / 2.0, ARENA_HEIGHT / 2.0, 0.0);
+                // Randomly choose a negative or positive flip
+                if self.sampler.sample(&mut self.rand_gen) {
+                    ball.velocity[1] = -ball.velocity[1]
+                }
                 play_score_sound(&*sounds, &storage, audio_output.as_ref().map(|o| o.deref()));
+                transform.set_translation_xyz(ARENA_WIDTH / 2.0, ARENA_HEIGHT / 2.0, 0.0);
             }
         }
     }

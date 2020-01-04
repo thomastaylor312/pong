@@ -1,3 +1,4 @@
+extern crate rand;
 use crate::resources::Music;
 use crate::states::Pong;
 use amethyst::{
@@ -58,7 +59,7 @@ fn main() -> amethyst::Result<()> {
             &["paddle_system", "move_balls_system"],
         )
         .with(
-            systems::ScoringSystem,
+            systems::ScoringSystem::default(),
             "scoring_system",
             &["move_balls_system"],
         );

@@ -2,23 +2,27 @@ extern crate rand;
 use crate::resources::Music;
 use crate::states::Pong;
 use amethyst::{
+    assets::PrefabLoaderSystemDesc,
     audio::{AudioBundle, DjSystem},
     core::transform::TransformBundle,
     input::{InputBundle, StringBindings},
     prelude::*,
     renderer::{
         plugins::{RenderFlat2D, RenderToWindow},
+        rendy::mesh::{Normal, Position, TexCoord},
         types::DefaultBackend,
         RenderingBundle,
     },
     ui::{RenderUi, UiBundle},
-    utils::application_root_dir,
+    utils::{application_root_dir, scene::BasicScenePrefab},
 };
 
 mod components;
 mod resources;
 mod states;
 mod systems;
+
+type MyPrefabData = BasicScenePrefab<(Vec<Position>, Vec<Normal>, Vec<TexCoord>)>;
 
 fn main() -> amethyst::Result<()> {
     amethyst::start_logger(Default::default());
@@ -33,6 +37,8 @@ fn main() -> amethyst::Result<()> {
 
     // let mut world = World::new();
     let game_data = GameDataBuilder::default()
+        .with_system_desc(PrefabLoaderSystemDesc::<MyPrefabData>::default(), "", &[])
+        .with_bundle(input_bundle)?
         .with_bundle(
             RenderingBundle::<DefaultBackend>::new()
                 .with_plugin(
@@ -43,18 +49,27 @@ fn main() -> amethyst::Result<()> {
                 .with_plugin(RenderUi::default()),
         )?
         .with_bundle(TransformBundle::new())?
-        .with_bundle(input_bundle)?
         .with_bundle(UiBundle::<StringBindings>::new())?
         .with_bundle(AudioBundle::default())?
+        // TODO: Figure out how to make the music stop on pause
         .with(
-            DjSystem::new(|music: &mut Music| music.music.next()),
+            DjSystem::new(|music: &mut Music| music.music.next())
+                .pausable(resources::CurrentState::Running),
             "dj_system",
             &[],
         )
-        .with(systems::PaddleSystem, "paddle_system", &["input_system"])
-        .with(systems::MoveBallsSystem, "move_balls_system", &[])
         .with(
-            systems::BounceSystem,
+            systems::PaddleSystem.pausable(resources::CurrentState::Running),
+            "paddle_system",
+            &["input_system"],
+        )
+        .with(
+            systems::MoveBallsSystem.pausable(resources::CurrentState::Running),
+            "move_balls_system",
+            &[],
+        )
+        .with(
+            systems::BounceSystem.pausable(resources::CurrentState::Running),
             "bounce_system",
             &["paddle_system", "move_balls_system"],
         )
@@ -64,7 +79,9 @@ fn main() -> amethyst::Result<()> {
             &["move_balls_system"],
         );
     let assets_dir = app_root.join("assets");
-    let mut game = Application::new(assets_dir, Pong::default(), game_data)?;
+    // let mut game = Application::new(assets_dir, Pong::default(), game_data)?;
+    let mut game: Application<GameData> =
+        CoreApplication::build(assets_dir, Pong::default())?.build(game_data)?;
     game.run();
 
     Ok(())

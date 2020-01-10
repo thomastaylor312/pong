@@ -61,12 +61,7 @@ pub fn initialize(world: &mut World) {
     let p2_score = world
         .create_entity()
         .with(p2_transform)
-        .with(UiText::new(
-            font.clone(),
-            "0".to_string(),
-            [1., 1., 1., 1.],
-            50.,
-        ))
+        .with(UiText::new(font, "0".to_string(), [1., 1., 1., 1.], 50.))
         .build();
 
     world.insert(ScoreText { p1_score, p2_score });

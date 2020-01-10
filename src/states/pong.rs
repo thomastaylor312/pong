@@ -1,8 +1,9 @@
 use crate::components::{ball, camera, paddle, score};
-use crate::resources::initialize_audio;
+use crate::resources::{initialize_audio, CurrentState};
 use amethyst::{
     assets::{AssetStorage, Handle, Loader},
     core::timing::Time,
+    input::{is_key_down, VirtualKeyCode},
     prelude::*,
     renderer::{ImageFormat, SpriteSheet, SpriteSheetFormat, Texture},
 };
@@ -26,6 +27,14 @@ impl SimpleState for Pong {
         initialize_audio(data.world);
     }
 
+    fn on_pause(&mut self, data: StateData<'_, GameData<'_, '_>>) {
+        *data.world.write_resource::<CurrentState>() = CurrentState::Paused;
+    }
+
+    fn on_resume(&mut self, data: StateData<'_, GameData<'_, '_>>) {
+        *data.world.write_resource::<CurrentState>() = CurrentState::Running;
+    }
+
     fn update(&mut self, data: &mut StateData<'_, GameData<'_, '_>>) -> SimpleTrans {
         if let Some(mut timer) = self.ball_spawn_timer.take() {
             // If the timer isn't expired yet, subtract the time that passed since the last update.
@@ -41,6 +50,22 @@ impl SimpleState for Pong {
                 self.ball_spawn_timer.replace(timer);
             }
         }
+        Trans::None
+    }
+
+    fn handle_event(
+        &mut self,
+        _data: StateData<'_, GameData<'_, '_>>,
+        event: StateEvent,
+    ) -> SimpleTrans {
+        if let StateEvent::Window(event) = &event {
+            if is_key_down(&event, VirtualKeyCode::Escape) {
+                // Pause the game
+                return Trans::Push(Box::new(crate::states::PausedState::default()));
+            }
+        }
+
+        // Escape isn't pressed, so we stay in this `State`.
         Trans::None
     }
 }

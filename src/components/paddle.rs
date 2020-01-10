@@ -47,7 +47,7 @@ pub fn initialize(world: &mut World, sprite_sheet: Handle<SpriteSheet>) {
 
     // Create the sprite renderer
     let sprite_render = SpriteRender {
-        sprite_sheet: sprite_sheet.clone(),
+        sprite_sheet,
         sprite_number: 0,
     };
 
@@ -62,7 +62,7 @@ pub fn initialize(world: &mut World, sprite_sheet: Handle<SpriteSheet>) {
     // Create right paddle entity.
     world
         .create_entity()
-        .with(sprite_render.clone())
+        .with(sprite_render)
         .with(Paddle::new(Side::Right))
         .with(right_transform)
         .build();
